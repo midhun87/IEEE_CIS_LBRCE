@@ -59,7 +59,7 @@
             border: none;
             cursor: pointer;
             padding: 0;
-            z-index: 1001; /* Ensure it's above other content */
+            z-index: 1001;
         }
 
         .hamburger-menu span {
@@ -83,7 +83,7 @@
 
         .main-content {
             display: flex;
-            min-height: calc(100vh - 86px); /* Adjust based on header height */
+            min-height: calc(100vh - 86px);
         }
         
         .sidebar {
@@ -128,11 +128,11 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             margin-bottom: 2rem;
-            display: none; /* Hide all sections by default */
+            display: none;
         }
         
         .admin-section.active {
-            display: block; /* Show active section */
+            display: block;
         }
 
         .admin-section h2 {
@@ -240,7 +240,6 @@
             background-color: #e9ecef;
             padding: 1rem;
             margin-bottom: 1rem;
-            cursor: pointer;
             border-radius: var(--border-radius);
         }
         
@@ -250,8 +249,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
         }
         
+        .print-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        .print-btn:hover {
+            background-color: #004080;
+        }
+
         .registrations-table-container {
             display: none;
             margin-top: 1rem;
@@ -295,7 +309,7 @@
                 height: 100vh;
                 transform: translateX(-100%);
                 z-index: 1000;
-                background-color: #ffffff; /* Ensure background is solid */
+                background-color: #ffffff;
             }
 
             .sidebar.open {
@@ -486,6 +500,49 @@
                 alert(resultText);
                 return response.ok;
             };
+
+            const printRegistrations = (eventName, registrations) => {
+                let printContent = `
+                    <html><head><title>Registrations for ${eventName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .print-header { display: flex; align-items: center; margin-bottom: 20px; }
+                        .print-header img { height: 50px; margin-right: 15px; }
+                        .print-header h1 { margin: 0; color: #006699; font-size: 1.5rem; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style></head><body>
+                    <div class="print-header">
+                        <img src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="Logo">
+                        <h1>Registrations for ${eventName}</h1>
+                    </div>
+                    <table><thead><tr>
+                        <th>Name</th><th>Email</th><th>Mobile</th>
+                        <th>College</th><th>Roll No</th><th>Registered on</th>
+                    </tr></thead><tbody>`;
+
+                registrations.forEach(reg => {
+                    printContent += `
+                        <tr>
+                            <td>${reg.name}</td>
+                            <td>${reg.email}</td>
+                            <td>${reg.mobile}</td>
+                            <td>${reg.college}</td>
+                            <td>${reg.rollnumber}</td>
+                            <td>${new Date(reg.timestamp).toLocaleString()}</td>
+                        </tr>`;
+                });
+
+                printContent += `</tbody></table></body></html>`;
+
+                const printWindow = window.open('', '', 'height=600,width=800');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
             
             const renderItems = (listElement, items, fields, endpoint) => {
                 listElement.innerHTML = '';
@@ -574,8 +631,11 @@
                     for (const eventName in registrationsByEvent) {
                         const eventContainer = document.createElement('div');
                         eventContainer.className = 'registrations-event';
-                        eventContainer.innerHTML = `<h3>${eventName}</h3>`;
                         
+                        const header = document.createElement('h3');
+                        header.innerHTML = `<span>${eventName}</span><button class="print-btn">Print List</button>`;
+                        eventContainer.appendChild(header);
+
                         const tableContainer = document.createElement('div');
                         tableContainer.className = 'registrations-table-container';
                         
@@ -584,7 +644,8 @@
                         table.innerHTML = `<thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th>College</th><th>Roll No</th><th>Registered on</th></tr></thead><tbody></tbody>`;
                         
                         const tbody = table.querySelector('tbody');
-                        registrationsByEvent[eventName].forEach(reg => {
+                        const eventRegistrations = registrationsByEvent[eventName];
+                        eventRegistrations.forEach(reg => {
                             const row = tbody.insertRow();
                             row.innerHTML = `<td>${reg.name}</td><td>${reg.email}</td><td>${reg.mobile}</td><td>${reg.college}</td><td>${reg.rollnumber}</td><td>${new Date(reg.timestamp).toLocaleString()}</td>`;
                         });
@@ -593,8 +654,15 @@
                         eventContainer.appendChild(tableContainer);
                         registrationsList.appendChild(eventContainer);
 
-                        eventContainer.querySelector('h3').addEventListener('click', () => {
-                            tableContainer.style.display = tableContainer.style.display === 'block' ? 'none' : 'block';
+                        header.addEventListener('click', (e) => {
+                            if (e.target.tagName !== 'BUTTON') {
+                                tableContainer.style.display = tableContainer.style.display === 'block' ? 'none' : 'block';
+                            }
+                        });
+                        
+                        header.querySelector('.print-btn').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            printRegistrations(eventName, eventRegistrations);
                         });
                     }
                 }
@@ -642,7 +710,7 @@
                 if (sectionIdToShow !== 'welcome-section') {
                     fetchAndRenderSection(sectionIdToShow.replace('-section', ''));
                 }
-                sidebar.classList.remove('open'); // Close sidebar after selection
+                sidebar.classList.remove('open');
             };
             
             hamburger.addEventListener('click', () => {
@@ -661,5 +729,3 @@
     </script>
 </body>
 </html>
-
-
