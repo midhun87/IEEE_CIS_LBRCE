@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - CIS LBRCE</title>
+    <style>
+        :root {
+            --primary-color: #006699;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header img.logo {
+            height: 75px;
+            margin-right: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin: 4rem auto; /* Center the container with margin */
+        }
+
+        .login-container h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+        }
+
+        .login-btn {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #004080;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            display: none;
+            text-align: left;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-container">
+            <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
+            <h1>Admin Login</h1>
+        </div>
+    </header>
+
+    <div class="login-container">
+        <h2>Please Log In</h2>
+        <form id="admin-login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('admin-login-form');
+            const messageDiv = document.getElementById('message');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/api/admin/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const result = await response.json();
+                    
+                    messageDiv.style.display = 'block';
+
+                    if (response.ok && result.success) {
+                        messageDiv.textContent = 'Login successful! Redirecting...';
+                        messageDiv.className = 'message success';
+                        localStorage.setItem('adminToken', result.token);
+                        // Use a short delay to allow the user to see the message
+                        setTimeout(() => {
+                            window.location.href = '/admin_panel.html';
+                        }, 1000);
+                    } else {
+                        messageDiv.textContent = result.message || 'Invalid username or password.';
+                        messageDiv.className = 'message error';
+                    }
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    messageDiv.textContent = 'An error occurred. Please try again.';
+                    messageDiv.className = 'message error';
+                    messageDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

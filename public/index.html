@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEEE CIS - Home</title>
+    <style>
+        :root {
+            --primary-color: #006699;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        
+        .header img.logo {
+            height: 75px;
+            margin-right: 1rem;
+        }
+        
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav {
+            background-color: #fff;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav li {
+            margin: 0 1rem;
+        }
+
+        .nav a {
+            display: block;
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border-radius: var(--border-radius);
+        }
+
+        .nav a.active, .nav a:hover {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-container">
+            <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
+            <h1>IEEE CIS Student Chapter</h1>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <ul>
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/about.html" >About Us</a></li>
+            <li><a href="/team.html">Team</a></li>
+            <li><a href="/members.html">Members</a></li>
+            <li><a href="/events.html">Events</a></li>
+            <li><a href="/join.html">Join IEEE</a></li>
+            <li><a href="/gallery.html">Gallery</a></li>
+            <li><a href="/admin_login.html">Admin</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section class="section">
+            <h2>Welcome</h2>
+            <p>Welcome to the official website of the IEEE Computational Intelligence Society (CIS) Student Chapter. Our mission is to advance the understanding and application of computational intelligence for the benefit of humanity.</p>
+            <p>We host a variety of events, including workshops, seminars, and hackathons, to foster a community of learning and innovation. Whether you're a student, a researcher, or a professional, we invite you to explore our work and join our community.</p>
+        </section>
+
+        <section class="section">
+            <h2>About Computational Intelligence</h2>
+            <p>Computational intelligence (CI) is a set of nature-inspired computational methodologies and approaches to problem solving. The term refers to the ability of a computer to learn from data and apply that learning to new problems. Key areas of CI include:</p>
+            <ul>
+                <li>Neural Networks</li>
+                <li>Fuzzy Systems</li>
+                <li>Evolutionary Computation</li>
+                <li>Swarm Intelligence</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 IEEE CIS Student Chapter</p>
+    </footer>
+
+</body>
+</html>

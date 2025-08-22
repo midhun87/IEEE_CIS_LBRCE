@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - CIS LBRCE</title>
+    <style>
+        :root {
+            --primary-color: #006699;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header img.logo {
+            height: 75px;
+            margin-right: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .nav {
+            background-color: #fff;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav li {
+            margin: 0 1rem;
+        }
+
+        .nav a {
+            display: block;
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border-radius: var(--border-radius);
+        }
+
+        .nav a.active, .nav a:hover {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .event-card {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--primary-color);
+            border-radius: var(--border-radius);
+        }
+
+        .event-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .event-card .event-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-card .event-description {
+            margin-bottom: 1rem;
+        }
+
+        .event-card .register-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .event-card .register-btn:hover {
+            background-color: #218838;
+        }
+
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-container">
+            <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
+            <h1>EVENTS - CIS LBRCE</h1>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/team.html">Team</a></li>
+            <li><a href="/members.html">Members</a></li>
+            <li><a href="/events.html" class="active">Events</a></li>
+            <li><a href="/join.html">Join IEEE</a></li>
+            <li><a href="/gallery.html">Gallery</a></li>
+            <li><a href="/admin_login.html">Admin</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section class="section">
+            <h2>Upcoming Events</h2>
+            <div id="upcoming-events-container">
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Completed Events</h2>
+            <div id="completed-events-container">
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 IEEE CIS Student Chapter</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const upcomingContainer = document.getElementById('upcoming-events-container');
+            const completedContainer = document.getElementById('completed-events-container');
+
+            try {
+                const response = await fetch('/api/events');
+                const eventsData = await response.json();
+
+                if (eventsData && eventsData.length > 0) {
+                    // Sort events by date
+                    eventsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                    eventsData.forEach(event => {
+                        const eventCard = document.createElement('div');
+                        eventCard.className = 'event-card';
+                        
+                        let additionalContent = '';
+                        let buttonContent = '';
+
+                        if (event.status === 'upcoming') {
+                            buttonContent = `<a href="/registration.html?event_id=${event.id}" class="register-btn">Register Now</a>`;
+                        } else if (event.status === 'completed' && event.winners) {
+                            additionalContent = `<p><strong>Winners:</strong> ${event.winners}</p>`;
+                        }
+
+                        eventCard.innerHTML = `
+                            <h3>${event.name}</h3>
+                            <p class="event-meta">Date: ${new Date(event.date).toLocaleDateString()}</p>
+                            <p class="event-description">${event.description}</p>
+                            ${additionalContent}
+                            ${buttonContent}
+                        `;
+
+                        if (event.status === 'upcoming') {
+                            upcomingContainer.appendChild(eventCard);
+                        } else if (event.status === 'completed') {
+                            completedContainer.appendChild(eventCard);
+                        }
+                    });
+
+                    if (upcomingContainer.children.length === 0) {
+                        upcomingContainer.innerHTML = '<p>No upcoming events at the moment. Check back soon!</p>';
+                    }
+                    if (completedContainer.children.length === 0) {
+                        completedContainer.innerHTML = '<p>No completed events to display.</p>';
+                    }
+
+                } else {
+                    upcomingContainer.innerHTML = '<p>No upcoming events at the moment. Check back soon!</p>';
+                    completedContainer.innerHTML = '<p>No completed events to display.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching events data:', error);
+                upcomingContainer.innerHTML = '<p>Failed to load events data. Please try again later.</p>';
+                completedContainer.innerHTML = ''; // Clear completed container as well
+            }
+        });
+    </script>
+</body>
+</html>

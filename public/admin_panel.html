@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - CIS LBRCE</title>
+    <style>
+        :root {
+            --primary-color: #006699;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: calc(100vh - 70px); /* Adjust based on header height */
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            box-shadow: var(--box-shadow);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .sidebar button {
+            background-color: transparent;
+            border: none;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .sidebar button.active, .sidebar button:hover {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .container {
+            flex-grow: 1;
+            padding: 2rem;
+        }
+
+        .admin-section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            display: none; /* Hide all sections by default */
+        }
+        
+        .admin-section.active {
+            display: block; /* Show active section */
+        }
+
+        .admin-section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .admin-section h3 {
+            color: var(--primary-color);
+            margin-top: 20px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-section form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .admin-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .admin-section input, .admin-section textarea, .admin-section select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+        }
+
+        .admin-section button.form-submit-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .admin-section button.form-submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .item-list {
+            margin-top: 1rem;
+            border-top: 1px solid #ccc;
+            padding-top: 1rem;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-left: 5px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            flex-wrap: wrap;
+        }
+        
+        .item-list.user-list .item {
+            border-left-color: #218838; /* Green for users */
+        }
+        .item-list.user-list .item.is-admin {
+            border-left-color: #ffc107; /* Yellow for admins */
+        }
+
+        .item-info {
+            flex-grow: 1;
+            word-break: break-all;
+        }
+        
+        .item-actions {
+            white-space: nowrap;
+        }
+        
+        .item-actions button {
+            background-color: #ffc107;
+            margin-left: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .item-actions button.delete {
+            background-color: #dc3545;
+        }
+        
+        .item-actions button.toggle-admin {
+            background-color: var(--primary-color);
+        }
+
+        .registrations-event {
+            background-color: #e9ecef;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+        }
+        
+        .registrations-event h3 {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .registrations-table-container {
+            display: none; /* Hide registration list by default */
+            margin-top: 1rem;
+        }
+        
+        #welcome-section {
+            text-align: center;
+        }
+
+        .registration-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .registration-table th, .registration-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .registration-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin Panel</h1>
+        <button id="logout-btn" class="logout-btn">Logout</button>
+    </header>
+
+    <div class="main-content">
+        <aside class="sidebar">
+            <button id="show-welcome" class="active">Welcome</button>
+            <button id="show-users">Manage Users</button>
+            <button id="show-team">Manage Team Members</button>
+            <button id="show-members">Manage Members</button>
+            <button id="show-events">Manage Events</button>
+            <button id="show-gallery">Manage Gallery</button>
+            <button id="show-registrations">Event Registrations</button>
+        </aside>
+
+        <main class="container">
+            <section id="welcome-section" class="admin-section active">
+                <h2>Welcome to the Admin Dashboard</h2>
+                <p>Use the menu on the left to manage the website content.</p>
+            </section>
+            
+            <section id="users-section" class="admin-section">
+                <h2>Manage Users</h2>
+                <div class="item-list user-list" id="users-list"></div>
+            </section>
+
+            <section id="team-section" class="admin-section">
+                <h2>Manage Team Members</h2>
+                <form id="team-form">
+                    <input type="hidden" id="team-id">
+                    <input type="text" id="team-name" placeholder="Name" required>
+                    <input type="text" id="team-role" placeholder="Role" required>
+                    <input type="text" id="team-email" placeholder="Email (optional)">
+                    <input type="text" id="team-linkedin" placeholder="LinkedIn URL (optional)">
+                    <input type="text" id="team-image" placeholder="Image URL">
+                    <button type="submit" class="form-submit-btn">Add/Update Team Member</button>
+                </form>
+                <div class="item-list" id="team-list"></div>
+            </section>
+
+            <section id="members-section" class="admin-section">
+                <h2>Manage Members</h2>
+                <form id="members-form">
+                    <input type="hidden" id="members-id">
+                    <input type="text" id="members-name" placeholder="Name" required>
+                    <input type="number" id="members-year" placeholder="Year" required>
+                    <input type="email" id="members-email" placeholder="Email" required>
+                    <input type="text" id="members-linkedin" placeholder="LinkedIn URL (optional)">
+                    <input type="text" id="members-image" placeholder="Photo URL (optional)">
+                    <button type="submit" class="form-submit-btn">Add/Update Member</button>
+                </form>
+                <div class="item-list" id="members-list"></div>
+            </section>
+
+            <section id="events-section" class="admin-section">
+                <h2>Manage Events</h2>
+                <form id="events-form">
+                    <input type="hidden" id="events-id">
+                    <input type="text" id="events-name" placeholder="Event Name" required>
+                    <input type="date" id="events-date" required>
+                    <textarea id="events-description" placeholder="Description" required></textarea>
+                    <select id="events-status">
+                        <option value="upcoming">Upcoming</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <input type="text" id="events-winners" placeholder="Winners (optional)">
+                    <button type="submit" class="form-submit-btn">Add/Update Event</button>
+                </form>
+                <div class="item-list" id="events-list"></div>
+            </section>
+
+            <section id="gallery-section" class="admin-section">
+                <h2>Manage Gallery</h2>
+                <form id="gallery-form">
+                    <input type="hidden" id="gallery-id">
+                    <input type="text" id="gallery-title" placeholder="Title" required>
+                    <input type="text" id="gallery-url" placeholder="Image/Video URL" required>
+                    <select id="gallery-type">
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                    </select>
+                    <button type="submit" class="form-submit-btn">Add/Update Gallery Item</button>
+                </form>
+                <div class="item-list" id="gallery-list"></div>
+            </section>
+            
+            <section id="registrations-section" class="admin-section">
+                <h2>Event Registrations</h2>
+                <div id="registrations-list"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                window.location.href = '/admin_login.html';
+                return;
+            }
+            
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('adminToken');
+                window.location.href = '/admin_login.html';
+            });
+            
+            const ADMIN_API_BASE_URL = '/api/admin';
+            const PUBLIC_API_BASE_URL = '/api';
+
+            const fetchData = async (baseUrl, endpoint) => {
+                try {
+                    const response = await fetch(`${baseUrl}/${endpoint}`, {
+                        headers: { 'Authorization': `Bearer ${adminToken}` }
+                    });
+                    if (!response.ok) throw new Error(`Failed to fetch from ${endpoint}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Error fetching data from ${endpoint}:`, error);
+                    alert('Failed to load data. Session may have expired. Please log in again.');
+                    window.location.href = '/admin_login.html';
+                    return [];
+                }
+            };
+            
+            const handleCrud = async (endpoint, method, data) => {
+                const response = await fetch(`${ADMIN_API_BASE_URL}/${endpoint}`, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const resultText = await response.text();
+                alert(resultText);
+                return response.ok;
+            };
+            
+            const renderItems = (listElement, items, fields, endpoint) => {
+                listElement.innerHTML = '';
+                items.forEach(item => {
+                    const listItem = document.createElement('div');
+                    listItem.className = `item ${endpoint === 'users' && item.isAdmin ? 'is-admin' : ''}`;
+                    
+                    const infoHtml = fields.map(field => `<strong>${field.label}:</strong> ${item[field.key] || 'N/A'}`).join(' | ');
+                    
+                    listItem.innerHTML = `
+                        <div class="item-info">${infoHtml}</div>
+                        <div class="item-actions">
+                            ${endpoint !== 'users' ? `<button class="update-btn" data-id="${item.id}">Edit</button>` : ''}
+                            ${endpoint !== 'users' ? `<button class="delete-btn" data-id="${item.id}">Delete</button>` : ''}
+                            ${endpoint === 'users' ? `<button class="toggle-admin-btn" data-username="${item.username}">${item.isAdmin ? 'Revoke Admin' : 'Make Admin'}</button>` : ''}
+                        </div>
+                    `;
+
+                    if (endpoint !== 'users') {
+                        const updateBtn = listItem.querySelector('.update-btn');
+                        if (updateBtn) {
+                            updateBtn.addEventListener('click', () => {
+                                const form = document.getElementById(`${endpoint}-form`);
+                                form.querySelector(`#${endpoint}-id`).value = item.id;
+                                fields.forEach(field => {
+                                    if(form.querySelector(`#${endpoint}-${field.key}`)) {
+                                        form.querySelector(`#${endpoint}-${field.key}`).value = item[field.key] || '';
+                                    }
+                                });
+                                // Handle special cases like description textarea
+                                if(form.querySelector(`#${endpoint}-description`)) form.querySelector(`#${endpoint}-description`).value = item.description || '';
+                            });
+                        }
+                        
+                        const deleteBtn = listItem.querySelector('.delete-btn');
+                        if (deleteBtn) {
+                            deleteBtn.addEventListener('click', async () => {
+                                if (confirm('Are you sure you want to delete this item?')) {
+                                    if (await handleCrud(`${endpoint}/${item.id}`, 'DELETE')) {
+                                        fetchAndRenderSection(endpoint);
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    if (endpoint === 'users') {
+                        listItem.querySelector('.toggle-admin-btn').addEventListener('click', async () => {
+                            const newAdminStatus = !item.isAdmin;
+                            if (await handleCrud(`users/${item.username}`, 'PUT', { isAdmin: newAdminStatus })) {
+                                fetchAndRenderSection('users');
+                            }
+                        });
+                    }
+                    listElement.appendChild(listItem);
+                });
+            };
+
+            const fetchAndRenderSection = async (sectionId) => {
+                switch(sectionId) {
+                    case 'users':
+                        const usersData = await fetchData(ADMIN_API_BASE_URL, 'users');
+                        renderItems(document.getElementById('users-list'), usersData, [
+                            { key: 'username', label: 'Username' }, { key: 'isAdmin', label: 'Admin' }
+                        ], 'users');
+                        break;
+                    case 'team':
+                        const teamData = await fetchData(PUBLIC_API_BASE_URL, 'team');
+                        renderItems(document.getElementById('team-list'), teamData, [
+                            { key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }
+                        ], 'team');
+                        break;
+                    case 'members':
+                        const membersData = await fetchData(PUBLIC_API_BASE_URL, 'members');
+                        renderItems(document.getElementById('members-list'), membersData, [
+                            { key: 'name', label: 'Name' }, { key: 'year', label: 'Year' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }
+                        ], 'members');
+                        break;
+                    case 'events':
+                        const eventsData = await fetchData(PUBLIC_API_BASE_URL, 'events');
+                        renderItems(document.getElementById('events-list'), eventsData, [
+                            { key: 'name', label: 'Event' }, { key: 'date', label: 'Date' }, { key: 'status', label: 'Status' }
+                        ], 'events');
+                        break;
+                    case 'gallery':
+                        const galleryData = await fetchData(PUBLIC_API_BASE_URL, 'gallery');
+                        renderItems(document.getElementById('gallery-list'), galleryData, [
+                            { key: 'title', label: 'Title' }, { key: 'type', label: 'Type' }
+                        ], 'gallery');
+                        break;
+                    case 'registrations':
+                        const registrationsData = await fetchData(ADMIN_API_BASE_URL, 'registrations');
+                        const allEvents = await fetchData(PUBLIC_API_BASE_URL, 'events');
+                        const eventsMap = allEvents.reduce((acc, event) => {
+                            acc[event.id] = event.name;
+                            return acc;
+                        }, {});
+
+                        const registrationsList = document.getElementById('registrations-list');
+                        registrationsList.innerHTML = '';
+                        
+                        const registrationsByEvent = registrationsData.reduce((acc, reg) => {
+                            const eventName = eventsMap[reg.eventId] || 'Unknown Event';
+                            if (!acc[eventName]) acc[eventName] = [];
+                            acc[eventName].push(reg);
+                            return acc;
+                        }, {});
+
+                        for (const eventName in registrationsByEvent) {
+                            const eventContainer = document.createElement('div');
+                            eventContainer.className = 'registrations-event';
+                            eventContainer.innerHTML = `<h3>${eventName}</h3>`;
+                            
+                            const tableContainer = document.createElement('div');
+                            tableContainer.className = 'registrations-table-container';
+                            
+                            const table = document.createElement('table');
+                            table.className = 'registration-table';
+                            table.innerHTML = `
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
+                                        <th>College</th>
+                                        <th>Roll No</th>
+                                        <th>Registered on</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            `;
+                            
+                            const tbody = table.querySelector('tbody');
+                            registrationsByEvent[eventName].forEach(reg => {
+                                const row = tbody.insertRow();
+                                row.innerHTML = `
+                                    <td>${reg.name}</td>
+                                    <td>${reg.email}</td>
+                                    <td>${reg.mobile}</td>
+                                    <td>${reg.college}</td>
+                                    <td>${reg.rollnumber}</td>
+                                    <td>${new Date(reg.timestamp).toLocaleString()}</td>
+                                `;
+                            });
+
+                            tableContainer.appendChild(table);
+                            eventContainer.appendChild(tableContainer);
+                            registrationsList.appendChild(eventContainer);
+
+                            eventContainer.querySelector('h3').addEventListener('click', () => {
+                                tableContainer.style.display = tableContainer.style.display === 'block' ? 'none' : 'block';
+                            });
+                        }
+                        break;
+                }
+            };
+
+            const setupFormSubmit = (formId, endpoint) => {
+                const form = document.getElementById(formId);
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const id = form.querySelector(`#${endpoint}-id`).value;
+                    let data = {};
+                    
+                    if (endpoint === 'team') {
+                        data = { name: form.querySelector('#team-name').value, role: form.querySelector('#team-role').value, email: form.querySelector('#team-email').value, linkedin: form.querySelector('#team-linkedin').value, image: form.querySelector('#team-image').value };
+                    } else if (endpoint === 'members') {
+                        data = { name: form.querySelector('#members-name').value, year: parseInt(form.querySelector('#members-year').value), email: form.querySelector('#members-email').value, linkedin: form.querySelector('#members-linkedin').value, image: form.querySelector('#members-image').value };
+                    } else if (endpoint === 'events') {
+                        data = { name: form.querySelector('#events-name').value, date: form.querySelector('#events-date').value, description: form.querySelector('#events-description').value, status: form.querySelector('#events-status').value, winners: form.querySelector('#events-winners').value || undefined };
+                    } else if (endpoint === 'gallery') {
+                        data = { title: form.querySelector('#gallery-title').value, url: form.querySelector('#gallery-url').value, type: form.querySelector('#gallery-type').value };
+                    }
+
+                    const url = id ? `${endpoint}/${id}` : endpoint;
+                    const method = id ? 'PUT' : 'POST';
+                    if (id) data.id = id;
+
+                    if (await handleCrud(url, method, data)) {
+                        form.reset();
+                        form.querySelector(`#${endpoint}-id`).value = '';
+                        fetchAndRenderSection(endpoint);
+                    }
+                });
+            };
+
+            setupFormSubmit('team-form', 'team');
+            setupFormSubmit('members-form', 'members');
+            setupFormSubmit('events-form', 'events');
+            setupFormSubmit('gallery-form', 'gallery');
+
+            const sections = document.querySelectorAll('.admin-section');
+            const navButtons = document.querySelectorAll('.sidebar button');
+
+            const showSection = (sectionIdToShow) => {
+                sections.forEach(section => {
+                    section.classList.toggle('active', section.id === sectionIdToShow);
+                });
+                if (sectionIdToShow !== 'welcome-section') {
+                    fetchAndRenderSection(sectionIdToShow.replace('-section', ''));
+                }
+            };
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const sectionId = button.id.replace('show-', '') + '-section';
+                    showSection(sectionId);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

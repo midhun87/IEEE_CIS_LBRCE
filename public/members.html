@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Members - CIS LBRCE</title>
+    <style>
+        :root {
+            --primary-color: #006699;
+            --secondary-color: #f0f8ff;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .header img.logo {
+            height: 75px;
+            margin-right: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .nav {
+            background-color: #fff;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav li {
+            margin: 0 1rem;
+        }
+
+        .nav a {
+            display: block;
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border-radius: var(--border-radius);
+        }
+
+        .nav a.active, .nav a:hover {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .member-card {
+            text-align: center;
+            background-color: var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid var(--primary-color);
+        }
+
+        .member-card h3 {
+            margin: 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .member-card p {
+            margin: 0;
+            font-style: italic;
+        }
+        
+        .member-card .social-icons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .member-card .social-icons a {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo-container">
+            <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
+            <h1>Our Members</h1>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/team.html">Team</a></li>
+            <li><a href="/members.html" class="active">Members</a></li>
+            <li><a href="/events.html">Events</a></li>
+            <li><a href="/join.html">Join IEEE</a></li>
+            <li><a href="/gallery.html">Gallery</a></li>
+            <li><a href="/admin_login.html">Admin</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section class="section">
+            <h2>Our Valued Members</h2>
+            <div class="members-grid" id="members-grid">
+                </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 IEEE CIS Student Chapter</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const membersGrid = document.getElementById('members-grid');
+
+            try {
+                const response = await fetch('/api/members');
+                const membersData = await response.json();
+
+                if (membersData && membersData.length > 0) {
+                    membersData.forEach(member => {
+                        const memberCard = document.createElement('div');
+                        memberCard.className = 'member-card';
+                        memberCard.innerHTML = `
+                            <img src="${member.image}" onerror="this.onerror=null;this.src='https://placehold.co/150x150/png?text=No+Image';" alt="${member.name}">
+                            <h3>${member.name}</h3>
+                            
+                            <div class="social-icons">
+                                ${member.email ? `<a href="mailto:${member.email}"><i class="fa-solid fa-envelope"></i></a>` : ''}
+                                ${member.linkedin ? `<a href="${member.linkedin}" target="_blank"><i class="fa-brands fa-linkedin"></i></a>` : ''}
+                            </div>
+                        `;
+                        membersGrid.appendChild(memberCard);
+                    });
+                } else {
+                    membersGrid.innerHTML = '<p>No members found.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching members data:', error);
+                membersGrid.innerHTML = '<p>Failed to load members data. Please try again later.</p>';
+            }
+        });
+    </script>
+
+</body>
+</html>
