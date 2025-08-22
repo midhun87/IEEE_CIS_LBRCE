@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery - CIS LBRCE</title>
+    <title>Gallery</title>
     <style>
         :root {
             --primary-color: #006699;
@@ -27,25 +27,12 @@
             background-color: var(--primary-color);
             color: var(--light-text);
             padding: 1rem 2rem;
+            text-align: center;
             box-shadow: var(--box-shadow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .header .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .header img.logo {
-            height: 75px;
-            margin-right: 1rem;
         }
 
         .header h1 {
             margin: 0;
-            font-size: 2rem;
         }
 
         .nav {
@@ -78,9 +65,25 @@
             border-radius: var(--border-radius);
         }
 
-        .nav a.active, .nav a:hover {
+        .nav a:hover, .nav a.active {
             background-color: var(--primary-color);
             color: var(--light-text);
+        }
+        
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            padding: 1rem;
+        }
+        
+        .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            background-color: var(--light-text); /* Changed to white */
         }
 
         .container {
@@ -115,7 +118,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             background-color: #fff;
             text-align: center;
-            cursor: pointer; /* Add cursor pointer to show it's clickable */
+            cursor: pointer;
         }
 
         .gallery-item img, .gallery-item video {
@@ -214,26 +217,60 @@
         .prev:hover, .next:hover {
             background-color: rgba(0,0,0,0.8);
         }
+        
+        /* Responsive styles for mobile */
+        @media (max-width: 768px) {
+            .nav ul {
+                flex-direction: column;
+                display: none;
+            }
+            
+            .nav ul.active {
+                display: flex;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                right: 1rem;
+                top: 1rem;
+            }
+            
+            .header {
+                justify-content: center;
+                position: relative;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header img.logo {
+                height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="logo-container">
-            <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
-            <h1>Gallery</h1>
+        <h1>Gallery</h1>
+        <div class="hamburger" id="hamburger-menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
         </div>
     </header>
 
     <nav class="nav">
-        <ul>
+        <ul id="nav-menu">
             <li><a href="/">Home</a></li>
             <li><a href="/about.html">About Us</a></li>
             <li><a href="/team.html">Team</a></li>
             <li><a href="/members.html">Members</a></li>
             <li><a href="/events.html">Events</a></li>
             <li><a href="/join.html">Join IEEE</a></li>
-            <li><a href="/gallery.html" class="active">Gallery</a></li>
+            <li><a href="/gallery.html">Gallery</a></li>
             <li><a href="/admin_login.html">Admin</a></li>
         </ul>
     </nav>
@@ -242,7 +279,8 @@
         <section class="section">
             <h2>Memories from our Events</h2>
             <div id="gallery-grid">
-                </div>
+                <!-- Gallery items will be injected here by JavaScript -->
+            </div>
         </section>
     </main>
 
@@ -250,6 +288,7 @@
         <p>&copy; 2024 IEEE CIS Student Chapter</p>
     </footer>
 
+    <!-- The Modal -->
     <div id="image-modal" class="modal">
       <span class="close-btn">&times;</span>
       <div class="modal-content-container">
@@ -316,7 +355,7 @@
             
             closeBtn.onclick = function() {
                 modal.style.display = "none";
-                if (!modalVideo.paused) {
+                if (modalVideo.style.display === 'block') {
                     modalVideo.pause();
                 }
             };
@@ -351,6 +390,24 @@
                 console.error('Error fetching gallery data:', error);
                 galleryGrid.innerHTML = '<p>Failed to load gallery data. Please try again later.</p>';
             }
+            
+            // Hamburger menu logic
+            const hamburger = document.getElementById('hamburger-menu');
+            const navMenu = document.getElementById('nav-menu');
+            
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+            
+            // Active link highlighting
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav a');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
         });
     </script>
 </body>
