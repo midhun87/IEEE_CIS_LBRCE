@@ -48,6 +48,29 @@
             margin: 0;
             font-size: 1.5rem;
         }
+        
+        .hamburger-menu {
+            display: none; /* Hidden on desktop */
+            flex-direction: column;
+            justify-content: space-around;
+            width: 2rem;
+            height: 2rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001; /* Ensure it's above other content */
+        }
+
+        .hamburger-menu span {
+            width: 2rem;
+            height: 0.25rem;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s linear;
+            position: relative;
+            transform-origin: 1px;
+        }
 
         .logout-btn {
             background-color: #dc3545;
@@ -72,6 +95,7 @@
             flex-direction: column;
             gap: 0.5rem;
             flex-shrink: 0;
+            transition: transform 0.3s ease-in-out;
         }
         
         .sidebar button {
@@ -179,10 +203,10 @@
         }
         
         .item-list.user-list .item {
-            border-left-color: #218838; /* Green for users */
+            border-left-color: #218838;
         }
         .item-list.user-list .item.is-admin {
-            border-left-color: #ffc107; /* Yellow for admins */
+            border-left-color: #ffc107;
         }
 
         .item-info {
@@ -229,7 +253,7 @@
         }
         
         .registrations-table-container {
-            display: none; /* Hide registration list by default */
+            display: none;
             margin-top: 1rem;
         }
         
@@ -256,33 +280,30 @@
 
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-                min-height: auto;
+            .header {
+                padding: 1rem;
+            }
+
+            .hamburger-menu {
+                display: flex;
             }
 
             .sidebar {
-                width: 100%;
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 0.5rem;
-                gap: 0.25rem;
-                justify-content: flex-start;
-                box-sizing: border-box;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                z-index: 1000;
+                background-color: #ffffff; /* Ensure background is solid */
             }
 
-            .sidebar button {
-                flex-shrink: 0;
+            .sidebar.open {
+                transform: translateX(0);
             }
 
-            .header {
-                padding: 0.5rem 1rem;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .header h1 {
-                font-size: 1.2rem;
+            .main-content {
+                min-height: auto;
             }
 
             .container {
@@ -319,6 +340,11 @@
 <body>
 
     <header class="header">
+        <button class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <div class="logo-container">
             <img class="logo" src="https://res.cloudinary.com/dpz44zf0z/image/upload/v1755851112/erasebg-transformed_ctjl05.png" alt="IEEE CIS Logo">
             <h1>Admin Panel</h1>
@@ -485,20 +511,13 @@
                                 const form = document.getElementById(`${endpoint}-form`);
                                 form.querySelector(`#${endpoint}-id`).value = item.id;
                                 fields.forEach(field => {
-                                    if(form.querySelector(`#${endpoint}-${field.key}`)) {
-                                        form.querySelector(`#${endpoint}-${field.key}`).value = item[field.key] || '';
-                                    }
+                                    const input = form.querySelector(`#${endpoint}-${field.key}`);
+                                    if(input) input.value = item[field.key] || '';
                                 });
-                                if(form.querySelector(`#${endpoint}-description`)) form.querySelector(`#${endpoint}-description`).value = item.description || '';
-                                if(form.querySelector(`#${endpoint}-image`)) form.querySelector(`#${endpoint}-image`).value = item.image || '';
-                                if(form.querySelector(`#${endpoint}-linkedin`)) form.querySelector(`#${endpoint}-linkedin`).value = item.linkedin || '';
-                                if(form.querySelector(`#${endpoint}-email`)) form.querySelector(`#${endpoint}-email`).value = item.email || '';
-                                if(form.querySelector(`#${endpoint}-role`)) form.querySelector(`#${endpoint}-role`).value = item.role || '';
-                                if(form.querySelector(`#${endpoint}-url`)) form.querySelector(`#${endpoint}-url`).value = item.url || '';
-                                if(form.querySelector(`#${endpoint}-type`)) form.querySelector(`#${endpoint}-type`).value = item.type || '';
-                                if(form.querySelector(`#${endpoint}-date`)) form.querySelector(`#${endpoint}-date`).value = item.date || '';
-                                if(form.querySelector(`#${endpoint}-status`)) form.querySelector(`#${endpoint}-status`).value = item.status || '';
-                                if(form.querySelector(`#${endpoint}-winners`)) form.querySelector(`#${endpoint}-winners`).value = item.winners || '';
+                                ['description', 'image', 'linkedin', 'email', 'role', 'url', 'type', 'date', 'status', 'winners'].forEach(key => {
+                                    const extraInput = form.querySelector(`#${endpoint}-${key}`);
+                                    if(extraInput) extraInput.value = item[key] || '';
+                                });
                             });
                         }
                         
@@ -527,101 +546,57 @@
             };
 
             const fetchAndRenderSection = async (sectionId) => {
-                switch(sectionId) {
-                    case 'users':
-                        const usersData = await fetchData(ADMIN_API_BASE_URL, 'users');
-                        renderItems(document.getElementById('users-list'), usersData, [
-                            { key: 'username', label: 'Username' }, { key: 'isAdmin', label: 'Admin' }
-                        ], 'users');
-                        break;
-                    case 'team':
-                        const teamData = await fetchData(PUBLIC_API_BASE_URL, 'team');
-                        renderItems(document.getElementById('team-list'), teamData, [
-                            { key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }
-                        ], 'team');
-                        break;
-                    case 'members':
-                        const membersData = await fetchData(PUBLIC_API_BASE_URL, 'members');
-                        renderItems(document.getElementById('members-list'), membersData, [
-                            { key: 'name', label: 'Name' }, { key: 'year', label: 'Year' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }
-                        ], 'members');
-                        break;
-                    case 'events':
-                        const eventsData = await fetchData(PUBLIC_API_BASE_URL, 'events');
-                        renderItems(document.getElementById('events-list'), eventsData, [
-                            { key: 'name', label: 'Event' }, { key: 'date', label: 'Date' }, { key: 'status', label: 'Status' }
-                        ], 'events');
-                        break;
-                    case 'gallery':
-                        const galleryData = await fetchData(PUBLIC_API_BASE_URL, 'gallery');
-                        renderItems(document.getElementById('gallery-list'), galleryData, [
-                            { key: 'title', label: 'Title' }, { key: 'type', label: 'Type' }
-                        ], 'gallery');
-                        break;
-                    case 'registrations':
-                        const registrationsData = await fetchData(ADMIN_API_BASE_URL, 'registrations');
-                        const allEvents = await fetchData(PUBLIC_API_BASE_URL, 'events');
-                        const eventsMap = allEvents.reduce((acc, event) => {
-                            acc[event.id] = event.name;
-                            return acc;
-                        }, {});
+                const sections = {
+                    'users': { url: ADMIN_API_BASE_URL, endpoint: 'users', listId: 'users-list', fields: [{ key: 'username', label: 'Username' }, { key: 'isAdmin', label: 'Admin' }] },
+                    'team': { url: PUBLIC_API_BASE_URL, endpoint: 'team', listId: 'team-list', fields: [{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }] },
+                    'members': { url: PUBLIC_API_BASE_URL, endpoint: 'members', listId: 'members-list', fields: [{ key: 'name', label: 'Name' }, { key: 'year', label: 'Year' }, { key: 'email', label: 'Email' }, { key: 'linkedin', label: 'LinkedIn' }] },
+                    'events': { url: PUBLIC_API_BASE_URL, endpoint: 'events', listId: 'events-list', fields: [{ key: 'name', label: 'Event' }, { key: 'date', label: 'Date' }, { key: 'status', label: 'Status' }] },
+                    'gallery': { url: PUBLIC_API_BASE_URL, endpoint: 'gallery', listId: 'gallery-list', fields: [{ key: 'title', label: 'Title' }, { key: 'type', label: 'Type' }] }
+                };
 
-                        const registrationsList = document.getElementById('registrations-list');
-                        registrationsList.innerHTML = '';
+                if (sections[sectionId]) {
+                    const { url, endpoint, listId, fields } = sections[sectionId];
+                    const data = await fetchData(url, endpoint);
+                    renderItems(document.getElementById(listId), data, fields, endpoint);
+                } else if (sectionId === 'registrations') {
+                    const registrationsData = await fetchData(ADMIN_API_BASE_URL, 'registrations');
+                    const allEvents = await fetchData(PUBLIC_API_BASE_URL, 'events');
+                    const eventsMap = allEvents.reduce((acc, event) => ({ ...acc, [event.id]: event.name }), {});
+                    const registrationsList = document.getElementById('registrations-list');
+                    registrationsList.innerHTML = '';
+                    const registrationsByEvent = registrationsData.reduce((acc, reg) => {
+                        const eventName = eventsMap[reg.eventId] || 'Unknown Event';
+                        if (!acc[eventName]) acc[eventName] = [];
+                        acc[eventName].push(reg);
+                        return acc;
+                    }, {});
+
+                    for (const eventName in registrationsByEvent) {
+                        const eventContainer = document.createElement('div');
+                        eventContainer.className = 'registrations-event';
+                        eventContainer.innerHTML = `<h3>${eventName}</h3>`;
                         
-                        const registrationsByEvent = registrationsData.reduce((acc, reg) => {
-                            const eventName = eventsMap[reg.eventId] || 'Unknown Event';
-                            if (!acc[eventName]) acc[eventName] = [];
-                            acc[eventName].push(reg);
-                            return acc;
-                        }, {});
+                        const tableContainer = document.createElement('div');
+                        tableContainer.className = 'registrations-table-container';
+                        
+                        const table = document.createElement('table');
+                        table.className = 'registration-table';
+                        table.innerHTML = `<thead><tr><th>Name</th><th>Email</th><th>Mobile</th><th>College</th><th>Roll No</th><th>Registered on</th></tr></thead><tbody></tbody>`;
+                        
+                        const tbody = table.querySelector('tbody');
+                        registrationsByEvent[eventName].forEach(reg => {
+                            const row = tbody.insertRow();
+                            row.innerHTML = `<td>${reg.name}</td><td>${reg.email}</td><td>${reg.mobile}</td><td>${reg.college}</td><td>${reg.rollnumber}</td><td>${new Date(reg.timestamp).toLocaleString()}</td>`;
+                        });
 
-                        for (const eventName in registrationsByEvent) {
-                            const eventContainer = document.createElement('div');
-                            eventContainer.className = 'registrations-event';
-                            eventContainer.innerHTML = `<h3>${eventName}</h3>`;
-                            
-                            const tableContainer = document.createElement('div');
-                            tableContainer.className = 'registrations-table-container';
-                            
-                            const table = document.createElement('table');
-                            table.className = 'registration-table';
-                            table.innerHTML = `
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Mobile</th>
-                                        <th>College</th>
-                                        <th>Roll No</th>
-                                        <th>Registered on</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            `;
-                            
-                            const tbody = table.querySelector('tbody');
-                            registrationsByEvent[eventName].forEach(reg => {
-                                const row = tbody.insertRow();
-                                row.innerHTML = `
-                                    <td>${reg.name}</td>
-                                    <td>${reg.email}</td>
-                                    <td>${reg.mobile}</td>
-                                    <td>${reg.college}</td>
-                                    <td>${reg.rollnumber}</td>
-                                    <td>${new Date(reg.timestamp).toLocaleString()}</td>
-                                `;
-                            });
+                        tableContainer.appendChild(table);
+                        eventContainer.appendChild(tableContainer);
+                        registrationsList.appendChild(eventContainer);
 
-                            tableContainer.appendChild(table);
-                            eventContainer.appendChild(tableContainer);
-                            registrationsList.appendChild(eventContainer);
-
-                            eventContainer.querySelector('h3').addEventListener('click', () => {
-                                tableContainer.style.display = tableContainer.style.display === 'block' ? 'none' : 'block';
-                            });
-                        }
-                        break;
+                        eventContainer.querySelector('h3').addEventListener('click', () => {
+                            tableContainer.style.display = tableContainer.style.display === 'block' ? 'none' : 'block';
+                        });
+                    }
                 }
             };
 
@@ -633,15 +608,10 @@
                     const id = form.querySelector(`#${endpoint}-id`).value;
                     let data = {};
                     
-                    if (endpoint === 'team') {
-                        data = { name: form.querySelector('#team-name').value, role: form.querySelector('#team-role').value, email: form.querySelector('#team-email').value, linkedin: form.querySelector('#team-linkedin').value, image: form.querySelector('#team-image').value };
-                    } else if (endpoint === 'members') {
-                        data = { name: form.querySelector('#members-name').value, year: parseInt(form.querySelector('#members-year').value), email: form.querySelector('#members-email').value, linkedin: form.querySelector('#members-linkedin').value, image: form.querySelector('#members-image').value };
-                    } else if (endpoint === 'events') {
-                        data = { name: form.querySelector('#events-name').value, date: form.querySelector('#events-date').value, description: form.querySelector('#events-description').value, status: form.querySelector('#events-status').value, winners: form.querySelector('#events-winners').value || undefined };
-                    } else if (endpoint === 'gallery') {
-                        data = { title: form.querySelector('#gallery-title').value, url: form.querySelector('#gallery-url').value, type: form.querySelector('#gallery-type').value };
-                    }
+                    if (endpoint === 'team') data = { name: form.querySelector('#team-name').value, role: form.querySelector('#team-role').value, email: form.querySelector('#team-email').value, linkedin: form.querySelector('#team-linkedin').value, image: form.querySelector('#team-image').value };
+                    else if (endpoint === 'members') data = { name: form.querySelector('#members-name').value, year: parseInt(form.querySelector('#members-year').value), email: form.querySelector('#members-email').value, linkedin: form.querySelector('#members-linkedin').value, image: form.querySelector('#members-image').value };
+                    else if (endpoint === 'events') data = { name: form.querySelector('#events-name').value, date: form.querySelector('#events-date').value, description: form.querySelector('#events-description').value, status: form.querySelector('#events-status').value, winners: form.querySelector('#events-winners').value || undefined };
+                    else if (endpoint === 'gallery') data = { title: form.querySelector('#gallery-title').value, url: form.querySelector('#gallery-url').value, type: form.querySelector('#gallery-type').value };
 
                     const url = id ? `${endpoint}/${id}` : endpoint;
                     const method = id ? 'PUT' : 'POST';
@@ -662,6 +632,8 @@
 
             const sections = document.querySelectorAll('.admin-section');
             const navButtons = document.querySelectorAll('.sidebar button');
+            const sidebar = document.querySelector('.sidebar');
+            const hamburger = document.querySelector('.hamburger-menu');
 
             const showSection = (sectionIdToShow) => {
                 sections.forEach(section => {
@@ -670,7 +642,12 @@
                 if (sectionIdToShow !== 'welcome-section') {
                     fetchAndRenderSection(sectionIdToShow.replace('-section', ''));
                 }
+                sidebar.classList.remove('open'); // Close sidebar after selection
             };
+            
+            hamburger.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
 
             navButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -684,3 +661,4 @@
     </script>
 </body>
 </html>
+Give me the code to add a signup page in the admin panel to provide a signup form for new admins.
