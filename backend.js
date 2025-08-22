@@ -16,7 +16,11 @@ app.use(express.static('public')); // Serve static files from a 'public' directo
 // Configure AWS with your credentials and region
 // IMPORTANT: Replace 'YOUR_ACCESS_KEY_ID' and 'YOUR_SECRET_ACCESS_KEY'
 // It is recommended to use environment variables for production.
-
+AWS.config.update({
+    region: 'ap-south-1', // IMPORTANT: This region must match where your DynamoDB tables are located.
+    accessKeyId: 'AKIATCKAN7T2PIRKXQXV', // Use env var or provided key
+    secretAccessKey: 'MziOjyYKztTwxdLAE+LBqfS96tsp1V4LFEWjP6EV' // Use env var or provided key
+});
 
 
 const docClient = new AWS.DynamoDB.DocumentClient();
@@ -309,3 +313,4 @@ app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
     console.log('Serving files from:', path.join(__dirname, 'public'));
 });
+
