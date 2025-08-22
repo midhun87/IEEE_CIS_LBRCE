@@ -45,6 +45,7 @@
 
         .header h1 {
             margin: 0;
+            font-size: 2rem;
         }
 
         .nav {
@@ -52,6 +53,33 @@
             box-shadow: var(--box-shadow);
             margin-bottom: 2rem;
             padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 2rem;
+            height: 2rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .hamburger-menu span {
+            width: 2rem;
+            height: 0.25rem;
+            background: var(--primary-color);
+            border-radius: 10px;
         }
 
         .nav ul {
@@ -149,6 +177,56 @@
             padding: 1rem;
             margin-top: 2rem;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.5rem 1rem;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .header img.logo {
+                height: 50px;
+            }
+
+            .nav {
+                justify-content: flex-end;
+            }
+
+            .hamburger-menu {
+                display: flex;
+            }
+
+            .nav ul {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: #fff;
+                box-shadow: var(--box-shadow);
+                z-index: 100;
+            }
+
+            .nav ul.open {
+                display: flex;
+            }
+
+            .nav li {
+                margin: 0.5rem 0;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -161,7 +239,12 @@
     </header>
 
     <nav class="nav">
-        <ul>
+        <button class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul id="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/about.html">About Us</a></li>
             <li><a href="/team.html">Team</a></li>
@@ -201,7 +284,6 @@
                 const eventsData = await response.json();
 
                 if (eventsData && eventsData.length > 0) {
-                    // Sort events by date
                     eventsData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                     eventsData.forEach(event => {
@@ -246,8 +328,15 @@
             } catch (error) {
                 console.error('Error fetching events data:', error);
                 upcomingContainer.innerHTML = '<p>Failed to load events data. Please try again later.</p>';
-                completedContainer.innerHTML = ''; // Clear completed container as well
+                completedContainer.innerHTML = '';
             }
+            
+            const hamburger = document.querySelector('.hamburger-menu');
+            const navLinks = document.getElementById('nav-links');
+
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('open');
+            });
         });
     </script>
 </body>
